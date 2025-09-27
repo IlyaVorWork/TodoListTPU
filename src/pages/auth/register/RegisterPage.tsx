@@ -28,7 +28,7 @@ const RegisterPage: FunctionComponent = () => {
   return (
     <Flex align={'center'} justify={'center'} style={{height: "100%"}}>
       <Card title="Регистрация">
-        <Form layout="vertical" form={form}>
+        <Form layout="vertical" form={form} style={{width: "400px"}}>
           <Form.Item<string>
             label="Email"
             name="email"
@@ -55,6 +55,10 @@ const RegisterPage: FunctionComponent = () => {
 
           <Form.Item>
             <Button type="primary" onClick={() => onRegisterUser()}>Зарегистрироваться</Button>
+          </Form.Item>
+
+          <Form.Item>
+            Уже есть аккаунт? <a href="/login">Войти</a>
           </Form.Item>
         </Form>
       </Card>

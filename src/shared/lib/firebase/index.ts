@@ -1,0 +1,1 @@
+export {app as firebaseApp, db as firestoreDB} from "./firebase";

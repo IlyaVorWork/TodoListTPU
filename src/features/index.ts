@@ -1,1 +1,1 @@
-export * from "./auth/api"
+export {registerUser, logoutUser, loginUser} from "./auth/api"

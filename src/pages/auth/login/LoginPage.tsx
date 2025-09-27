@@ -2,27 +2,33 @@ import type {FunctionComponent} from "react";
 import styles from "./LoginPage.module.scss";
 import {Button, Card, Flex, Form, Input} from "antd";
 import {loginUser} from "../../../features";
+import {useAppDispatch} from "../../../shared/lib/store";
+import {login} from "../../../entities/user";
+import {useNavigate} from "react-router";
 
 const LoginPage: FunctionComponent = () => {
 
   const [form] = Form.useForm()
 
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+
   const onLoginUser = async () => {
-    console.log(form.getFieldValue('email'), form.getFieldValue('password'))
     const user = await loginUser(form.getFieldValue('email'), form.getFieldValue('password'))
-    console.log(user)
+    dispatch(login(user))
+    navigate("/todos")
   }
 
   return (
     <Flex align={'center'} justify={'center'} style={{height: "100%"}}>
-      <Card title="Регистрация">
-        <Form layout="vertical" form={form}>
+      <Card title="Вход">
+        <Form layout="vertical" form={form} style={{width: "400px"}}>
           <Form.Item<string>
             label="Email"
             name="email"
             rules={[{required: true, message: 'Пожалуйста, введите адрес электронной почты'}]}
           >
-            <Input />
+            <Input/>
           </Form.Item>
 
           <Form.Item<string>
@@ -30,11 +36,15 @@ const LoginPage: FunctionComponent = () => {
             name="password"
             rules={[{required: true, message: 'Пожалуйста, введите пароль'}]}
           >
-            <Input.Password />
+            <Input.Password/>
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" onClick={() => onLoginUser()}>Зарегистрироваться</Button>
+            <Button block type="primary" onClick={() => onLoginUser()}>Войти</Button>
+          </Form.Item>
+
+          <Form.Item>
+            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
           </Form.Item>
         </Form>
       </Card>
