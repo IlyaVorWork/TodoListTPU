@@ -30,7 +30,7 @@ const RegisterPage: FunctionComponent = () => {
   return (
     <Flex className={styles.content}>
       {contextHolder}
-      <Card title="Регистрация">
+      <Card title="Регистрация" className={styles.formCard}>
         <Form layout="vertical" form={form} className={styles.form}>
           <Form.Item<string>
             label="Email"

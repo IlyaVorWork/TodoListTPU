@@ -35,7 +35,7 @@ const LoginPage: FunctionComponent = () => {
   return (
     <Flex className={styles.content}>
       {contextHolder}
-      <Card title="Вход">
+      <Card title="Вход" className={styles.formCard}>
         <Form layout="vertical" form={form} className={styles.form}>
           <Form.Item<string>
             label="Email"
