@@ -1,1 +1,1 @@
-export {default as AppRouter} from './appRouter.tsx';
+export {AppRouter} from './AppRouter';

@@ -1,0 +1,18 @@
+.taskListItemContent {
+    width: 100%;
+    gap: 16px;
+    align-items: center;
+}
+
+.priorityCircle {
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+}
+
+.taskTitle {
+    width: calc(100% - 177px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

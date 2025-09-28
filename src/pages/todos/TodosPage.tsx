@@ -1,142 +1,112 @@
-import {type FunctionComponent, useEffect, useState} from "react";
-import styles from "./TodosPage.module.scss";
-import {Button, Checkbox, Flex, Form, Input, List, Modal, Select, Typography} from "antd";
-import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
-import type {Task} from "../../entities/task";
-import {addTask, getTasks} from "../../features/task/api.ts";
+import {type FunctionComponent, useContext, useEffect, useState} from "react";
+import styles from "./TodosPage.module.css";
+import {Flex, List, message} from "antd";
+import {type Task} from "../../entities/task";
+import {
+  deleteTask,
+  getTasks,
+  updateTask,
+  TaskListItem,
+  AddTaskModal,
+  UpdateTaskModal,
+  TaskListHeader
+} from "../../features";
 import {useAppSelector} from "../../shared/lib/store";
-import TextArea from "antd/es/input/TextArea";
-
-const {Text, Title} = Typography;
-
-const priorityColor = {
-  "low": "#52c41a",
-  "medium": "#faad14",
-  "high": "#ff4d4f",
-}
-
-const priorityOptions = [
-  {
-    value: 'low',
-    title: "Низкий"
-  },
-  {
-    value: 'medium',
-    title: "Средний"
-  },
-  {
-    value: 'high',
-    title: "Высокий"
-  }
-]
+import {TasksFiltersContext} from "../../shared/context/TasksFiltersContext";
 
 const TodosPage: FunctionComponent = () => {
 
-  const [form] = Form.useForm()
-
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [isUpdateTaskModalOpen, setIsUpdateTaskModalOpen] = useState(false);
+  const [taskToUpdate, setTaskToUpdate] = useState<Task>({} as Task);
 
-  const showModal = () => {
-    setIsNewTaskModalOpen(true);
-  };
+  const [isLoading, setIsLoading] = useState(true)
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const handleOk = () => {
-    addTask({
-      title: form.getFieldValue('title'),
-      description: form.getFieldValue('description') ?? "",
-      completed: false,
-      priority: form.getFieldValue('priority'),
-      userId: user.uid,
-    } as Task).then(task => {
-      setTodos(prev => [...prev, task!])
-      form.resetFields()
-    })
-    setIsNewTaskModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsNewTaskModalOpen(false);
-  };
-
+  const {filter: tasksFilter, searchQuery} = useContext(TasksFiltersContext)
   const user = useAppSelector(state => state.user)
 
-  const [todos, setTodos] = useState<Task[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const handleUpdateTask = async (task: Task) => {
+    updateTask(task).then((updatedTask) => {
+      setTasks(prev => prev.map(todo => {
+        if (todo.id === updatedTask!.id) {
+          return updatedTask!
+        }
+        return todo
+      }))
+      setTaskToUpdate({} as Task)
+      messageApi.info("Задача успешно обновлена")
+    }).catch(() => {
+      messageApi.error("Ошибка при обновлении задачи")
+    })
+  }
+
+  const handleCreateNewTask = (task: Task) => {
+    setTasks(prev => [...prev, task])
+    messageApi.info("Задача успешно добавлена")
+  }
+
+  const handleOpenEditTaskModal = (task: Task) => {
+    setTaskToUpdate(task)
+    setIsUpdateTaskModalOpen(true)
+  }
+
+  const handleOpenNewTaskModal = () => {
+    setIsNewTaskModalOpen(true)
+  }
+
+  const handleDeleteTask = async (id: string) => {
+    deleteTask(id).then(() => {
+      setTasks(prev => prev.filter(todo => todo.id !== id))
+      messageApi.info("Задача успешно удалена")
+    }).catch(() => {
+      messageApi.error("Ошибка при удалении задачи")
+    })
+  }
 
   useEffect(() => {
+    setIsLoading(true)
     getTasks(user.uid).then((tasks) => {
-      setTodos(tasks)
-      console.log(tasks)
+      setTasks(tasks!)
+      setIsLoading(false)
     })
-  }, []);
+  }, [user]);
 
   return (
-    <Flex align={'center'} justify={'center'} style={{height: "100%"}}>
-      <List
-        style={{
-          width: "600px",
-          maxHeight: "800px"
-        }}
-        header={
-          <Flex style={{flex: 1}} gap={16} align="center">
-            <Title style={{margin: 0}} level={4}>Список задач</Title>
-            <Button icon={<PlusOutlined />} onClick={() => showModal()} />
-          </Flex>
-        }
-        bordered
-        dataSource={todos}
-        renderItem={(item) => (
-          <List.Item>
-            <Flex style={{flex: 1}} gap={16} align="center">
-              <Checkbox checked={item.completed}/>
-              <div style={{
-                width: '25px',
-                height: '25px',
-                borderRadius: "100%",
-                backgroundColor: priorityColor[item.priority],
-              }}/>
-              <Text delete={item.completed} style={{width: "calc(100% - 121px)"}}>{item.title}</Text>
-              <Button icon={<DeleteOutlined/>}/>
-            </Flex>
-          </List.Item>
-        )}
-      />
-      <Modal
-        title="Новая задача"
-        closable={{ 'aria-label': 'Custom Close Button' }}
-        open={isNewTaskModalOpen}
-        onOk={handleOk}
-        okText="Добавить"
-        onCancel={handleCancel}
-        cancelText="Отмена"
-      >
-        <Form form={form} initialValues={{priority: 'low'}}>
-          <Form.Item<string>
-            label="Заголовок"
-            name="title"
-          >
-            <Input placeholder="Заголовок" />
-          </Form.Item>
+    <Flex className={styles.wrapper}>
+      <Flex vertical className={styles.content}>
+        {contextHolder}
+        <TaskListHeader onOpenNewTaskModal={handleOpenNewTaskModal}/>
+        <List
+          className={styles.tasksList}
+          bordered
+          loading={isLoading}
+          dataSource={tasks.filter((task) => {
+            switch (tasksFilter) {
+              case "completed": {
+                return task.completed && task.title.toLowerCase().includes(searchQuery)
+              }
+              case "uncompleted": {
+                return !task.completed && task.title.toLowerCase().includes(searchQuery)
+              }
+              default:
+                return task.title.toLowerCase().includes(searchQuery)
+            }
+          }).toSorted((a, b) => b.createdAt.seconds - a.createdAt.seconds)}
+          renderItem={(item) => (
+            <TaskListItem task={item} onEditStart={handleOpenEditTaskModal} onUpdate={handleUpdateTask}
+                          onDelete={handleDeleteTask}/>
+          )}
+        />
 
-          <Form.Item<string>
-            label="Описание"
-            name="description"
-          >
-            <TextArea rows={4} placeholder="Описание" />
-          </Form.Item>
+        <AddTaskModal isOpen={isNewTaskModalOpen} setIsOpen={setIsNewTaskModalOpen} onCreate={handleCreateNewTask}
+                      onFailure={() => messageApi.error("Ошибка при добавлении задачи")}/>
+        <UpdateTaskModal isOpen={isUpdateTaskModalOpen} setIsOpen={setIsUpdateTaskModalOpen} task={taskToUpdate}
+                         onUpdate={handleUpdateTask} onFailure={() => messageApi.error("Ошибка при обновлении задачи")}/>
 
-          <Form.Item<string>
-            label="Приоритет"
-            name="priority"
-          >
-            <Select value={form.getFieldValue('priority')}>
-              {priorityOptions.map(option => (
-                <Select.Option value={option.value}>{option.title}</Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-        </Form>
-      </Modal>
+      </Flex>
     </Flex>
   )
 }

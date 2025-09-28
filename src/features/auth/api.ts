@@ -1,4 +1,5 @@
 import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
+import {FirebaseError} from "firebase/app";
 
 export const registerUser = async (email: string, password: string) => {
   const auth = getAuth();
@@ -8,23 +9,16 @@ export const registerUser = async (email: string, password: string) => {
 
     return userCredential.user;
   } catch (error) {
-    const errorCode = error.code;
-    const errorMessage = error.message;
+    const {code: errorCode, message: errorMessage} = error as FirebaseError;
     console.error(errorCode, errorMessage);
   }
 }
 
 export const loginUser = async (email: string, password: string) => {
   const auth = getAuth();
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password)
+  const userCredential = await signInWithEmailAndPassword(auth, email, password)
 
-    return userCredential.user;
-  } catch (error) {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.error(errorCode, errorMessage);
-  }
+  return userCredential.user;
 }
 
 export const logoutUser = async () => {
@@ -32,8 +26,7 @@ export const logoutUser = async () => {
   try {
     await signOut(auth);
   } catch (error) {
-    const errorCode = error.code;
-    const errorMessage = error.message;
+    const {code: errorCode, message: errorMessage} = error as FirebaseError;
     console.error(errorCode, errorMessage);
   }
 }

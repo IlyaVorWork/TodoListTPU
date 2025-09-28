@@ -1,1 +1,7 @@
 export {registerUser, logoutUser, loginUser} from "./auth/api"
+export {addTask, getTasks, deleteTask, updateTask} from "./task/api"
+export {AddTaskModal} from "./task/add-task"
+export {UpdateTaskModal} from "./task/update-task"
+export {TaskListItem} from "./task/task-list-item"
+export {TaskListHeader} from "./task/task-list-header"
+export type {TasksFilter} from "./task/filter-tasks"

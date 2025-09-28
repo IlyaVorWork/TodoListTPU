@@ -1,7 +1,8 @@
 import type {FunctionComponent, ReactNode} from "react";
 import {BrowserRouter} from "react-router";
-import { Provider } from 'react-redux';
+import {Provider} from 'react-redux';
 import {mainStore} from "../stores";
+import {TasksFiltersProvider} from "../../shared/context/TasksFiltersContext";
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -10,9 +11,11 @@ type AppProvidersProps = {
 export const AppProviders: FunctionComponent<AppProvidersProps> = ({children}) => {
   return (
     <Provider store={mainStore}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
+      <TasksFiltersProvider>
+        <BrowserRouter>
+          {children}
+        </BrowserRouter>
+      </TasksFiltersProvider>
     </Provider>
   )
 }

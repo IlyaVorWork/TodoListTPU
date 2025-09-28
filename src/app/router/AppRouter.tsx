@@ -2,10 +2,10 @@ import {Route, Routes} from 'react-router';
 import {TodosPage} from "../../pages/todos";
 import {RegisterPage} from "../../pages/auth/register";
 import {LoginPage} from "../../pages/auth/login";
-import {WithAuth} from "../withAuth";
 import {Layout} from "../layout";
+import {WithAuth} from "../with-auth";
 
-const AppRouter = () => {
+export const AppRouter = () => {
   return (
     <Routes>
       <Route element={<WithAuth/>}>
@@ -18,5 +18,3 @@ const AppRouter = () => {
     </Routes>
   );
 };
-
-export default AppRouter;

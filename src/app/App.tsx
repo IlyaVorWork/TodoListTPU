@@ -1,6 +1,6 @@
 import './styles/App.css';
 import {AppRouter} from "./router";
-import {AppProviders} from "./providers/appProviders.tsx";
+import {AppProviders} from "./providers/AppProviders.tsx";
 import {Flex, Spin} from "antd";
 import {LoadingOutlined} from "@ant-design/icons";
 import {firebaseApp} from "../shared/lib/firebase";

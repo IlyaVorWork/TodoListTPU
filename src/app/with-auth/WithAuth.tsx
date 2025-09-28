@@ -1,7 +1,7 @@
 import {type FunctionComponent, useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "../../shared/lib/store";
 import {getAuth} from "firebase/auth";
-import {login} from "../../entities/user";
+import {login, type User} from "../../entities/user";
 import {Outlet, useNavigate} from "react-router";
 import {Flex, Spin} from "antd";
 import {LoadingOutlined} from "@ant-design/icons";
@@ -18,7 +18,11 @@ export const WithAuth: FunctionComponent = () => {
 
     auth.onAuthStateChanged((user) => {
       if (user) {
-        dispatch(login(user))
+        dispatch(login({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        } as User))
       } else {
         navigate("/login")
       }

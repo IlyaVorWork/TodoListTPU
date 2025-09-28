@@ -1,1 +1,1 @@
-export { mainStore } from './mainStore';
+export { mainStore } from './MainStore.ts';

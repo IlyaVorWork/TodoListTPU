@@ -1,0 +1,6 @@
+@media (max-width: 480px) {
+    .tasksFilter {
+        display: flex;
+        flex-direction: column;
+    }
+}

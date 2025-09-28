@@ -1,0 +1,35 @@
+.taskListHeader {
+    gap: 16px;
+    align-items: center;
+}
+
+.headerTop {
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+}
+
+.headerTitle {
+    gap: 16px;
+}
+
+@media (max-width: 570px) {
+    .taskListHeader {
+        padding-top: 16px;
+    }
+
+    .headerTop {
+        flex-direction: column;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .taskListHeader {
+        padding-top: 0;
+    }
+
+    .headerTop {
+        flex-direction: column;
+    }
+}

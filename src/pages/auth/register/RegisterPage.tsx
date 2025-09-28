@@ -1,38 +1,50 @@
 import type {FunctionComponent} from "react";
-import styles from "./RegisterPage.module.scss";
-import {Button, Card, Flex, Form, Input} from "antd";
+import styles from "./RegisterPage.module.css";
+import {Button, Card, Flex, Form, Input, message} from "antd";
 import {registerUser} from "../../../features";
-import * as z from "zod";
-
-const ValidateRegisterIputs = z.object({
-  email: z.email(),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
-}).refine((data) => data.password === data.confirmPassword, {
-  path: ['confirmPassword'],
-  message: "Пароли не совпадают"
-});
-
-//TODO: Валидация регисьрации
+import {useNavigate} from "react-router";
+import {FirebaseError} from "firebase/app";
 
 const RegisterPage: FunctionComponent = () => {
 
+  const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm()
+  const navigate = useNavigate()
 
   const onRegisterUser = async () => {
-    console.log(form.getFieldValue('email'), form.getFieldValue('password'))
-    const user = await registerUser(form.getFieldValue('email'), form.getFieldValue('password'))
-    console.log(user)
+    try {
+      await form.validateFields()
+
+      await registerUser(form.getFieldValue('email'), form.getFieldValue('password'))
+
+      navigate("/login")
+    } catch(error) {
+      if (error instanceof FirebaseError) {
+        messageApi.error("Ошибка регистрации")
+      }
+      // @ts-expect-error Antd form validation error
+      messageApi.error(error.errorFields[0].errors[0])
+    }
   }
 
   return (
-    <Flex align={'center'} justify={'center'} style={{height: "100%"}}>
+    <Flex className={styles.content}>
+      {contextHolder}
       <Card title="Регистрация">
-        <Form layout="vertical" form={form} style={{width: "400px"}}>
+        <Form layout="vertical" form={form} className={styles.form}>
           <Form.Item<string>
             label="Email"
             name="email"
-            rules={[{required: true, message: 'Пожалуйста, введите адрес электронной почты'}]}
+            rules={[
+              {
+                type: 'email',
+                message: 'Введенный Email имеет неверный формат',
+              },
+              {
+                required: true,
+                message: 'Пожалуйста, введите Email',
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -40,7 +52,13 @@ const RegisterPage: FunctionComponent = () => {
           <Form.Item<string>
             label="Пароль"
             name="password"
-            rules={[{required: true, message: 'Пожалуйста, введите пароль'}]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Пожалуйста, введите пароль',
+              },
+            ]}
           >
             <Input.Password />
           </Form.Item>
@@ -48,7 +66,21 @@ const RegisterPage: FunctionComponent = () => {
           <Form.Item<string>
             label="Повторите пароль"
             name="confirmPassword"
-            rules={[{required: true, message: 'Пожалуйста, повторите пароль'}]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Пожалуйста, подтвердите пароль',
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Пароли не совпадают'));
+                },
+              }),
+            ]}
           >
             <Input.Password />
           </Form.Item>

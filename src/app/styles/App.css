@@ -3,4 +3,11 @@
   height: 100vh;
   background-color: #F0F2F5;
   font-family: "Inter", sans-serif;
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  #root {
+    overflow: hidden;
+  }
 }
