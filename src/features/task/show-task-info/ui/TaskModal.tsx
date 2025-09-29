@@ -34,7 +34,7 @@ export const TaskModal: FunctionComponent<TaskModalProps> = ({task, isOpen, onCl
           name="priority"
         >
           <div style={{color: priorityColor[priority]}}>
-            {priorityOptions.find(el => el.value === priority)!.title}
+            {priority && priorityOptions.find(el => el.value === priority)!.title}
           </div>
         </Form.Item>
       </Form>
