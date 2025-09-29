@@ -9,19 +9,22 @@ import {
   TaskListItem,
   AddTaskModal,
   UpdateTaskModal,
-  TaskListHeader
+  TaskListHeader, TaskModal
 } from "../../features";
 import {useAppSelector} from "../../shared/lib/store";
 import {TasksFiltersContext} from "../../shared/context/TasksFiltersContext";
 
 const TodosPage: FunctionComponent = () => {
 
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isUpdateTaskModalOpen, setIsUpdateTaskModalOpen] = useState(false);
   const [taskToUpdate, setTaskToUpdate] = useState<Task>({} as Task);
 
   const [isLoading, setIsLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  const [selectedTask, setSelectedTask] = useState<Task>({} as Task)
 
   const {filter: tasksFilter, searchQuery} = useContext(TasksFiltersContext)
   const user = useAppSelector(state => state.user)
@@ -46,6 +49,11 @@ const TodosPage: FunctionComponent = () => {
   const handleCreateNewTask = (task: Task) => {
     setTasks(prev => [...prev, task])
     messageApi.info("Задача успешно добавлена")
+  }
+
+  const handleOpenTaskModal = (task: Task) => {
+    setSelectedTask(task)
+    setIsTaskModalOpen(true)
   }
 
   const handleOpenEditTaskModal = (task: Task) => {
@@ -96,11 +104,12 @@ const TodosPage: FunctionComponent = () => {
             }
           }).toSorted((a, b) => b.createdAt.seconds - a.createdAt.seconds)}
           renderItem={(item) => (
-            <TaskListItem task={item} onEditStart={handleOpenEditTaskModal} onUpdate={handleUpdateTask}
+            <TaskListItem task={item} onSelect={handleOpenTaskModal} onEditStart={handleOpenEditTaskModal} onUpdate={handleUpdateTask}
                           onDelete={handleDeleteTask}/>
           )}
         />
 
+        <TaskModal task={selectedTask} isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
         <AddTaskModal isOpen={isNewTaskModalOpen} setIsOpen={setIsNewTaskModalOpen} onCreate={handleCreateNewTask}
                       onFailure={() => messageApi.error("Ошибка при добавлении задачи")}/>
         <UpdateTaskModal isOpen={isUpdateTaskModalOpen} setIsOpen={setIsUpdateTaskModalOpen} task={taskToUpdate}

@@ -15,7 +15,7 @@
 }
 
 @media (max-width: 480px) {
-  .form {
-    width: 80vw;
+  .formCard {
+    width: 90vw;
   }
 }
