@@ -11,7 +11,7 @@ interface TaskModalProps {
 
 export const TaskModal: FunctionComponent<TaskModalProps> = ({task, isOpen, onClose}) => {
 
-  const {title, description, priority} = task
+  const {title, description, priority, completed} = task
 
   return (
     <Modal
@@ -35,6 +35,15 @@ export const TaskModal: FunctionComponent<TaskModalProps> = ({task, isOpen, onCl
         >
           <div style={{color: priorityColor[priority]}}>
             {priority && priorityOptions.find(el => el.value === priority)!.title}
+          </div>
+        </Form.Item>
+
+        <Form.Item<string>
+          label="Статус"
+          name="status"
+        >
+          <div style={{color: completed ? "#52c41a" : "#ff4d4f"}}>
+            {completed ? "Выполнена" : "Не выполнена"}
           </div>
         </Form.Item>
       </Form>
